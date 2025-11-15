@@ -1,0 +1,59 @@
+:root {
+    /* Colores Principales */
+    --color-dark-bg: #0F020C; /* El morado oscuro para el fondo */
+    --color-text-light: #F5F5F5; /* Blanco para el texto */
+    
+    /* Colores para los botones y enlaces */
+    --color-primary: #8A2BE2; /* Un morado brillante para la navegación/enlaces */
+    --color-success: #4CAF50; /* Verde para guardar y crear */
+    --color-danger: #D32F2F; /* Rojo para eliminar */
+    --color-info: #1976D2; /* Azul para editar */
+
+    /* Espaciado y Sombra */
+    --spacing-default: 20px;
+}
+
+/* 2. ESTILOS BASE Y FONDO */
+
+/* Aplicar el fondo oscuro a todo el cuerpo y color de texto claro */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: var(--color-dark-bg);
+    color: var(--color-text-light); /* Texto principal claro */
+    min-height: 100vh;
+}
+
+/* Contenedor principal para centrar o limitar el ancho */
+#root > div {
+    padding: var(--spacing-default);
+    max-width: 1200px;
+    margin: 0 auto; /* Centra el contenido */
+}
+
+
+/* 3. Estilos de enlaces */
+
+h1, h2, h3 {
+    color: var(--color-text-light); /* Asegura que los títulos sean claros */
+    margin-top: 0;
+}
+
+/* Estilo para los enlaces de navegación */
+header a {
+    color: var(--color-primary); /* Morado/Violeta */
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+header a:hover {
+    color: #FFD700; /* Color para resaltar */
+}
+
+/* Estilo para la línea divisora */
+hr {
+    border-color: rgba(255, 255, 255, 0.1);
+    margin: var(--spacing-default) 0;
+}

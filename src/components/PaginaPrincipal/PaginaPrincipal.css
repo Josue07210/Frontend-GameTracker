@@ -1,0 +1,113 @@
+/* Header (Ajuste del App.jsx) */
+.main-header {
+    display: flex;
+    justify-content: space-between; /* Mueve el título a la izquierda y el botón a la derecha */
+    align-items: center;
+    padding: 20px;
+    background-color: var(--color-dark-bg); /* Mantiene el fondo oscuro */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo-title {
+    margin: 0;
+    font-size: 1.8rem;
+    color: var(--color-text-light); 
+}
+
+.btn-library {
+    padding: 8px 15px;
+    background-color: var(--color-primary); /* Morado/Violeta */
+    color: var(--color-text-light) !important;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-library:hover {
+    background-color: #A052EE; /* Tono morado más claro */
+}
+
+
+
+/* Contenedor Principal */
+
+.landing-container {
+    padding: 20px; /* Padding interno para que no pegue el contenido al borde */
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.intro-card {
+    /* Fondo oscuro para la tarjeta de la introducción */
+    background-color: rgba(0, 0, 0, 0.7); 
+    border: 1px solid var(--color-primary); /* Borde morado para resaltar */
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 40px;
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.5); /* Sombra suave morada */
+}
+
+.intro-title {
+    font-size: 1.5rem;
+    text-align: center;
+    color: var(--color-text-light);
+}
+
+.separator-line {
+    width: 100%;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin: 15px 0;
+}
+
+
+/* Sección de Sugerencias */
+
+.suggested-games-section h3 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+}
+
+.suggested-games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+    gap: 20px;
+}
+
+.game-suggestion-card {
+    background-color: #1A0D1F; /* Fondo un poco más claro que el principal */
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.placeholder-image {
+    width: 100%;
+    height: 150px;
+    background-color: #333; /* Gris para el placeholder */
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.link-reviews {
+    color: var(--color-success); /* Verde para el enlace "Ver Reseñas" */
+    text-decoration: none;
+    font-weight: bold;
+    display: block; /* Ocupa todo el ancho */
+    margin-top: 10px;
+}
+
+
+/* Footer */
+
+
+.main-footer {
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 50px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+}
