@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import axiosClient from '../config/axiosClient';
 
 const initialState = {
     nombre: '',
     genero: '',
     plataforma: '',
-    // Asegúrate de incluir todos los campos obligatorios de tu Esquema de Mongoose
     anioLanzamiento: 2000, 
     imagenPortada: '',
     desarrollador: '',
@@ -17,6 +16,30 @@ const JuegoFormulario = () => {
     const [juego, setJuego] = useState(initialState);
     const navigate = useNavigate();
 
+    const { id } = useParams(); 
+    const esEdicion = !!id; // Determina si es edición o creación
+
+    useEffect(() => { 
+        if (esEdicion) {
+            const obtenerJuegoParaEdicion = async () => {
+                try {
+                    const response = await axiosClient.get(`/juegos/${id}`);
+                    // Establecer los datos del juego en el estado
+                    // NOTA: Mongoose devuelve el id como _id, lo ignoramos al pasar el spread
+                    setJuego(response.data); 
+                } catch (error) {
+                    console.error('Error al cargar el juego para edición:', error);
+                    alert('No se pudo cargar el juego. Volviendo a la lista.');
+                    navigate('/');
+                }
+            };
+            obtenerJuegoParaEdicion();
+        } else {
+             // Si es /nuevo, limpia el estado por si venimos de editar
+             setJuego(initialState);
+        }
+    }, [esEdicion, id, navigate]);
+
     // Maneja el cambio en los inputs
     const handleChange = e => {
         const { name, value } = e.target;
@@ -26,34 +49,43 @@ const JuegoFormulario = () => {
         });
     };
 
-    // Maneja el envío del formulario (POST)
+
+// 🔄 Maneja el envío del formulario (POST para crear, PUT para editar)
     const handleSubmit = async e => {
         e.preventDefault();
+
+        const juegoData = {
+            ...juego,
+            anioLanzamiento: Number(juego.anioLanzamiento),
+        };
         try {
-            const juegoData = {
-                ...juego,
-                anioLanzamiento: Number(juego.anioLanzamiento),
-            };
-            
-            // Envía la solicitud POST a el backend /api/juegos
-            await axiosClient.post('/juegos', juegoData); 
+            if (esEdicion) {
+                // Envía la solicitud PUT a el backend /api/juegos/:id
+                // 🔄 MODO EDICIÓN: Usar PUT
+                await axiosClient.put(`/juegos/${id}`, juegoData);
+                alert('¡Juego actualizado con éxito!');
+            } else {
+                // 🔄 MODO CREACIÓN: Usar POST
+                await axiosClient.post('/juegos', juegoData); 
+                alert('¡Juego creado con éxito!');
+            }            
 
             alert('¡Juego creado con éxito!');
             navigate('/'); // Vuelve a la lista
 
         } catch (error) {
-            // Manejo de errores de validación de Mongoose
-            const msg = error.response.data.error || 'Ocurrió un error desconocido.';
-            console.error('Error al crear el juego:', error.response.data);
+            const msg = error.response?.data?.error || 'Ocurrió un error desconocido.';
+            console.error('Error al guardar el juego:', error.response?.data || error);
             alert(`Error: ${msg}`);
         }
     };
 
     return (
         <div>
-            <h2>📝 Añadir Nuevo Juego</h2>
+            {/* 🔄 Título dinámico */}
+            <h2>{esEdicion ? `✏️ Editar Juego: ${juego.nombre}` : '📝 Añadir Nuevo Juego'}</h2>
             <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px' }}>
-                {/* CAMPOS DEL FORMULARIO */}
+                {/* CAMPOS DEL FORMULARIO - El `value` ahora carga los datos */}
                 
                 <label>Nombre:</label>
                 <input type="text" name="nombre" value={juego.nombre} onChange={handleChange} required />
@@ -77,7 +109,9 @@ const JuegoFormulario = () => {
                 <input type="text" name="imagenPortada" value={juego.imagenPortada} onChange={handleChange} />
                          
                 <br/>
-                <button type="submit" style={{ padding: '10px', backgroundColor: 'green', color: 'white', border: 'none' }}>Guardar Juego</button>
+                <button type="submit" style={{ padding: '10px', backgroundColor: esEdicion ? 'blue' : 'green', color: 'white', border: 'none' }}>
+                    {esEdicion ? 'Actualizar Juego' : 'Guardar Juego'}
+                </button>
             </form>
         </div>
     );

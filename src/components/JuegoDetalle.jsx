@@ -7,7 +7,26 @@ import ReseniaFormulario from './ReseniaFormulario';
 
 // Obtener las reseñas de ese juego (GET /api/reseñas?juegoId=:id).
 
-// Y mostrar el formulario de creación de reseñas.
+// Y de mostrar el formulario de creación de reseñas.
+
+// Esta función se encarga de renderizar las estrellas de puntuación
+const renderEstrellas = (puntuacion) => {
+    const estrellasLlenas = '★'.repeat(puntuacion);
+    const estrellasVacias = '☆'.repeat(5 - puntuacion);
+    const estrellasCompletas = estrellasLlenas + estrellasVacias; 
+    
+
+    return (
+        <span style={{ 
+            color: 'gold', 
+           
+            letterSpacing: '-2px', // Reduce el espacio entre las estrellas
+            fontWeight: 'bold'      // Hace que las estrellas sean más gruesas
+        }}>
+            {estrellasCompletas}
+        </span>
+    );
+};
 
 const JuegoDetalle = () => {
     const { id } = useParams();
@@ -44,6 +63,8 @@ const JuegoDetalle = () => {
     if (loading) return <h2>Cargando detalles del juego...</h2>;
     if (!juego) return <h2>Juego no encontrado.</h2>;
 
+
+
     return (
         <div style={{ padding: '20px' }}>
             <h1 style={{ marginBottom: '10px' }}>{juego.nombre}</h1>
@@ -65,14 +86,18 @@ const JuegoDetalle = () => {
             <h2>📝 Reseñas ({resenias.length})</h2>
             {/* 3. LISTA DE RESEÑAS */}
             {resenias.length === 0 ? (
-                <p>Sé el primero en reseñar este juego.</p>
+                <p>¡Crea tu reseña!</p>
             ) : (
                 resenias.map(resenia => (
                     <div key={resenia._id} style={{ border: '1px solid #ddd', padding: '15px', margin: '10px 0', borderRadius: '5px' }}>
-                        <h4>{resenia.titulo} - Puntuación: {resenia.puntuacion}/5</h4>
+                        <h4>{resenia.titulo} - Puntuación: {renderEstrellas(resenia.puntuacion)}
+</h4>
                         <p>{resenia.textoResenia}</p>
-                        <p><small>Por: {resenia.autor} | Horas jugadas: {resenia.horasJugadas}</small></p>
+                        <p><small>Estado: {resenia.estado}Por: {resenia.autor} | Horas jugadas: {resenia.horasJugadas}</small></p>
+                        <h4>{resenia.titulo} - Puntuación: {resenia.puntuacion}/5</h4>
+                      
                     </div>
+
                 ))
             )}
         </div>

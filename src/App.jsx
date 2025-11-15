@@ -8,7 +8,7 @@ function App() {
     <Router>
       <div style={{ padding: '20px' }}>
         <header>
-          {/* Navegación simple */}
+          {/* Navegación */}
           <Link to="/" style={{ marginRight: '20px' }}>Lista de Juegos</Link>
           <Link to="/nuevo">Añadir Nuevo Juego</Link>
         </header>

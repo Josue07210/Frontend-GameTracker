@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axiosClient from '../config/axiosClient';
 
 const initialState = {
+    tituloResenia: '',
     textoResenia: '',
     puntuacion: 5,
     autor: '',
@@ -48,6 +49,8 @@ const ReseniaFormulario = ({ juegoId, onReseniaCreada }) => {
     return (
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
             <input type="text" name="autor" value={resenia.autor} onChange={handleChange} placeholder="Tu Nombre" required />
+
+            <input type="text" name="tituloResenia" value={resenia.tituloResenia} onChange={handleChange} placeholder="Título de la Reseña" required />
             
             <textarea name="textoResenia" value={resenia.textoResenia} onChange={handleChange} placeholder="Escribe tu reseña..." required />
 
