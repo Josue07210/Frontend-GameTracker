@@ -1,29 +1,46 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import JuegoLista from './components/JuegoLista';
-import JuegoFormulario from './components/JuegoFormulario'; 
-import JuegoDetalle from './components/JuegoDetalle'; 
+// ⚠️ CORRECCIÓN: Añadida la extensión .jsx para asegurar la resolución
+import JuegoLista from './components/JuegoLista.jsx'; 
+import JuegoFormulario from './components/JuegoFormulario.jsx';
+import JuegoDetalle from './components/JuegoDetalle.jsx';
 import PaginaPrincipal from './components/PaginaPrincipal/PaginaPrincipal.jsx';
-import './App.css';
 
+// ⚠️ CORRECCIÓN: Añadida la extensión .css (si no se resuelve automáticamente)
+import './App.css'; 
 
 function App() {
   return (
     <Router>
-      <div style={{ padding: '0px' }}>
-        <header className="main-header"> {/* Clase para el CSS */}
-            {/* Título de la web y botón de "Biblioteca de Juegos" */}
-            <h1 className="logo-title">GameTracker</h1>
-          <Link to="/biblioteca" className="btn-library">Biblioteca de Juegos</Link> {/* La ruta a /biblioteca */}
-         </header>
+      <div className="min-h-screen bg-gray-900 text-white">
+        <header className="main-header p-4 bg-gray-800 shadow-lg flex justify-between items-center">
+          {/* Título de la App y botón "Biblioteca de Juegos" */}
+          <h1 className="logo-title text-3xl font-extrabold text-purple-400">GameTracker</h1>
+          <Link 
+            to="/biblioteca" 
+            className="btn-library bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 shadow-md"
+          >
+            Biblioteca de Juegos
+          </Link>
+        </header>
 
-        
-        <Routes> 
-           <Route path="/" element={<PaginaPrincipal />} />  {/*  La ruta principal es la Landing */}
-           <Route path="/biblioteca" element={<JuegoLista />} />  {/*  La lista de juegos va a /biblioteca */}
-           <Route path="/nuevo" element={<JuegoFormulario />} /> 
-           <Route path="/editar/:id" element={<JuegoFormulario />} />
-           <Route path="/juegos/:id" element={<JuegoDetalle />} />
-       </Routes>
+        <main className="p-4 md:p-8">
+          <Routes> {/* Usamos Routes en lugar de Route(s) */}
+            {/* 1. Ruta principal (Landing) */}
+            <Route path="/" element={<PaginaPrincipal />} /> 
+            
+            {/* 2. Ruta para la lista de juegos */}
+            <Route path="/biblioteca" element={<JuegoLista />} /> 
+            
+            {/* 3. Ruta para añadir nuevo juego */}
+            <Route path="/nuevo" element={<JuegoFormulario />} /> 
+            
+            {/* 4. Ruta para editar juego (con ID dinámico) */}
+            <Route path="/editar/:id" element={<JuegoFormulario />} /> 
+            
+            {/* 5. ⚠️ RUTA CLAVE: Para ver los detalles del juego y sus reseñas */}
+            <Route path="/juegos/:id" element={<JuegoDetalle />} /> 
+          </Routes>
+        </main>
       </div>
     </Router>
   );

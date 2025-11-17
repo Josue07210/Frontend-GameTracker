@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axiosClient from '../config/axiosClient'; 
 import { Link } from 'react-router-dom';
+import './JuegoLista.css';
 
 const JuegoLista = () => {
     const [juegos, setJuegos] = useState([]); 
@@ -47,58 +48,61 @@ const JuegoLista = () => {
     if (error) return <h2 style={{color: 'red'}}>Error: {error}</h2>;
     
     // 2. JSX COMPLETO RESTAURADO (Tu código original)
-    return (
-        <div style={{ padding: '20px' }}>
-            <h1>🎮 Juegos (Total: {juegos.length})</h1>
+return (
+        <div className="juego-lista-container"> {/* 🆕 Añadimos clase para CSS */}
+            <div className="lista-header"> {/* 🆕 Nuevo contenedor para título y botón */}
+                <h1>🎮 Juegos (Total: {juegos.length})</h1>
+                
+                {/* 🆕 BOTÓN AÑADIR NUEVO JUEGO */}
+                <Link to="/nuevo" className="btn-add-game">
+                    + Añadir Nuevo Juego
+                </Link>
+            </div>
             
+            <hr /> {/* Usaremos la línea divisoria global */}
+
             {juegos.length === 0 ? (
-                <p>No hay juegos registrados. ¡Añade uno!</p>
+                <p className="empty-message">No hay juegos registrados. ¡Añade uno!</p>
             ) : (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+                <div className="juegos-grid"> {/* 🆕 Cambiamos el estilo inline a una clase */}
                     {juegos.map(juego => (
-                        // El card principal
-                        <div key={juego._id} style={{ border: '1px solid #333', padding: '15px', borderRadius: '5px', width: '300px' }}>
+                        <div key={juego._id} className="juego-card"> {/* 🆕 Clase para el card */}
                             
                             {/* Imagen de Portada */}
                             {juego.imagenPortada && (
                                 <img 
                                     src={juego.imagenPortada} 
                                     alt={`Portada de ${juego.nombre}`} 
-                                    style={{ width: '100%', height: 'auto', maxHeight: '200px', objectFit: 'cover', marginBottom: '10px' }} 
+                                    className="card-image"
                                 />
                             )}
                             
                             {/* Información */}
-                            <h3 style={{ margin: '0 0 10px 0' }}>{juego.nombre}</h3>
-                            <p><strong>Género:</strong> {juego.genero}</p>
-                            <p><strong>Plataforma:</strong> {juego.plataforma}</p>
+                            <div className="card-info"> {/* 🆕 Contenedor para la info */}
+                                <h3>{juego.nombre}</h3>
+                                <p><strong>Género:</strong> {juego.genero}</p>
+                                <p><strong>Plataforma:</strong> {juego.plataforma}</p>
+                            </div>
                             
-                            {/* Botones de Acción */}
-                            <Link to={`/editar/${juego._id}`} style={{ 
-                                display: 'inline-block', 
-                                marginTop: '10px', 
-                                marginRight: '10px',
-                                padding: '5px 10px', 
-                                backgroundColor: 'blue', 
-                                color: 'white', 
-                                textDecoration: 'none',
-                                borderRadius: '3px'
-                            }}>
-                                Editar
-                            </Link>
-                            <button 
-                                onClick={() => eliminarJuego(juego._id)} 
-                                style={{ marginTop: '10px', padding: '5px 10px', backgroundColor: 'red', color: 'white', border: 'none', cursor: 'pointer' }}
-                            >
-                                Eliminar
-                            </button>
-                            <h3 style={{ margin: '0 0 10px 0' }}>
-                                {juego.nombre}
-                                {/*link al detalle del juego*/}
-                                <Link to={`/juegos/${juego._id}`} style={{ marginLeft: '10px', fontSize: '12px', color: 'green', textDecoration: 'none' }}>
-                                (Ver Reseñas)
+                            {/* 🆕 SECCIÓN DE ACCIONES (Botones y Ver Reseñas) */}
+                            <div className="card-actions"> 
+                                <Link to={`/editar/${juego._id}`} className="btn-action btn-edit">
+                                    Editar
                                 </Link>
-                            </h3>
+                                <button 
+                                    onClick={() => eliminarJuego(juego._id)} 
+                                    className="btn-action btn-delete"
+                                >
+                                    Eliminar
+                                </button>
+                                
+                                <hr className="action-separator"/> {/* 🆕 Línea divisora */}
+
+                                {/* 🆕 Link "Ver Reseñas" con estilo propio */}
+                                <Link to={`/juegos/${juego._id}`} className="link-reviews-card">
+                                    Ver Reseñas
+                                </Link>  
+                            </div>
                         </div>
                     ))}
                 </div>

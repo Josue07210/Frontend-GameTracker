@@ -1,78 +1,167 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axiosClient from '../config/axiosClient';
+import './ReseniaFormulario.css';
 
 const initialState = {
-    tituloResenia: '',
-    textoResenia: '',
+    titulo: '',
+    contenido: '',
     puntuacion: 5,
     autor: '',
     horasJugadas: 0,
-    recomendaria: true,
+    recomienda: true,
     estado: 'Pendiente'
 };
 
-// Recibe juegoId y una función de callback para recargar la lista
-const ReseniaFormulario = ({ juegoId, onReseniaCreada }) => {
+const ReseniaFormulario = ({ juegoId, onReseniaCreada, reseñaEditar }) => {
     const [resenia, setResenia] = useState(initialState);
+
+
+    useEffect(() => {
+        if (reseñaEditar) {
+            setResenia({
+                titulo: reseñaEditar.tituloResenia,
+                contenido: reseñaEditar.textoResenia,
+                puntuacion: reseñaEditar.puntuacion,
+                autor: reseñaEditar.autor,
+                horasJugadas: reseñaEditar.horasJugadas,
+                estado: reseñaEditar.estado,
+                recomienda: reseñaEditar.recomendaria
+            });
+        } else {
+            setResenia(initialState);
+        }
+    }, [reseñaEditar]);
 
     const handleChange = e => {
         const { name, value, type, checked } = e.target;
         setResenia({
             ...resenia,
-            [name]: type === 'checkbox' ? checked : value,
+            [name]: type === 'checkbox' ? checked : value
         });
     };
 
     const handleSubmit = async e => {
         e.preventDefault();
-        try {
-            const reseniaData = {
-                ...resenia,
-                juegoId: juegoId, // <--- ID OBLIGATORIO ASIGNADO
-                puntuacion: Number(resenia.puntuacion),
-                horasJugadas: Number(resenia.horasJugadas)
-            };
-            
-            // Endpoint POST /api/resenias
-            await axiosClient.post('/resenias', reseniaData); 
 
-            alert('Reseña creada con éxito!');
-            setResenia(initialState); // Limpia el formulario
-            onReseniaCreada(); // Llama a la función del padre para recargar la lista de reseñas
+        const reseniaData = {
+            juegoId,
+            autor: resenia.autor,
+            puntuacion: Number(resenia.puntuacion),
+            horasJugadas: Number(resenia.horasJugadas),
+            estado: resenia.estado,
+            tituloResenia: resenia.titulo,
+            textoResenia: resenia.contenido,
+            recomendaria: resenia.recomienda
+        };
+
+        try {
+            if (reseñaEditar) {
+                // 🆕 Actualizar reseña existente
+                await axiosClient.put(`/resenias/${reseñaEditar._id}`, reseniaData);
+            } else {
+                // Crear nueva reseña
+                await axiosClient.post('/resenias', reseniaData);
+            }
+
+            setResenia(initialState);
+            if (onReseniaCreada) onReseniaCreada();
 
         } catch (error) {
-            console.error('Error al crear la reseña:', error.response.data);
-            alert('Error al crear la reseña. Revisa la consola para detalles.');
+            console.error("Error al guardar reseña:", error);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '10px', maxWidth: '400px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
-            <input type="text" name="autor" value={resenia.autor} onChange={handleChange} placeholder="Tu Nombre" required />
+        <form onSubmit={handleSubmit} className="resenia-form">
+            <div className="form-group">
+                <label>Tu Nombre:</label>
+                <input 
+                    type="text"
+                    name="autor"
+                    value={resenia.autor}
+                    onChange={handleChange}
+                    placeholder="Tu Nombre"
+                    required 
+                />
+            </div>
 
-            <input type="text" name="tituloResenia" value={resenia.tituloResenia} onChange={handleChange} placeholder="Título de la Reseña" required />
+            <div className="form-group">
+                <label>Título de la Reseña:</label>
+                <input 
+                    type="text"
+                    name="titulo"
+                    value={resenia.titulo}
+                    onChange={handleChange}
+                    placeholder="Título de la Reseña"
+                    required
+                />
+            </div>
             
-            <textarea name="textoResenia" value={resenia.textoResenia} onChange={handleChange} placeholder="Escribe tu reseña..." required />
+            <div className="form-group">
+                <label>Escribe tu reseña:</label>
+                <textarea 
+                    name="contenido"
+                    value={resenia.contenido}
+                    onChange={handleChange}
+                    placeholder="Escribe tu reseña..."
+                    required
+                />
+            </div>
 
-            <label>Puntuación (1-5):</label>
-            <input type="number" name="puntuacion" value={resenia.puntuacion} onChange={handleChange} min="1" max="5" required />
-            
-            <label>Horas Jugadas:</label>
-            <input type="number" name="horasJugadas" value={resenia.horasJugadas} onChange={handleChange} min="0" />
+            <div className="form-group half-width">
+                <label>Puntuación (1-5 ⭐):</label>
+                <input 
+                    type="number"
+                    name="puntuacion"
+                    value={resenia.puntuacion}
+                    onChange={handleChange}
+                    min="1"
+                    max="5"
+                    required 
+                />
+            </div>
 
-            <label>Estado del juego (al momento de reseñar):</label>
-                <select name="estado" value={resenia.estado} onChange={handleChange} required>
+            <div className="form-group half-width">
+                <label>Horas jugadas:</label>
+                <input 
+                    type="number"
+                    name="horasJugadas"
+                    value={resenia.horasJugadas}
+                    onChange={handleChange}
+                    min="0"
+                    required
+                />
+            </div>
+
+            <div className="form-group">
+                <label>
+                    <input 
+                        type="checkbox" 
+                        name="recomienda" 
+                        checked={resenia.recomienda} 
+                        onChange={handleChange} 
+                    />
+                    Recomendarías este juego
+                </label>
+            </div>
+
+            <div className="form-group">
+                <label>Estado del juego:</label>
+                <select 
+                    name="estado" 
+                    value={resenia.estado} 
+                    onChange={handleChange} 
+                    required
+                >
                     <option value="Pendiente">Pendiente</option>
                     <option value="En Progreso">En Progreso</option>
                     <option value="Completado">Completado</option>
                 </select>
+            </div>
 
-            <label>
-                <input type="checkbox" name="recomendaria" checked={resenia.recomendaria} onChange={handleChange} /> 
-                ¿Lo recomendarías?
-            </label>
-            
-            <button type="submit" style={{ padding: '8px', backgroundColor: '#4CAF50', color: 'white', border: 'none' }}>Enviar Reseña</button>
+            <button type="submit" className="btn-submit btn-success">
+                {reseñaEditar ? 'Actualizar Reseña' : 'Enviar Reseña'}
+            </button>
         </form>
     );
 };

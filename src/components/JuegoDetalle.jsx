@@ -1,105 +1,135 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axiosClient from '../config/axiosClient';
-import ReseniaFormulario from './ReseniaFormulario'; 
-
-// Este componente se encargará de: Obtener los datos del juego (GET /api/juegos/:id).
-
-// Obtener las reseñas de ese juego (GET /api/reseñas?juegoId=:id).
-
-// Y de mostrar el formulario de creación de reseñas.
-
-// Esta función se encarga de renderizar las estrellas de puntuación
-const renderEstrellas = (puntuacion) => {
-    const estrellasLlenas = '★'.repeat(puntuacion);
-    const estrellasVacias = '☆'.repeat(5 - puntuacion);
-    const estrellasCompletas = estrellasLlenas + estrellasVacias; 
-    
-
-    return (
-        <span style={{ 
-            color: 'gold', 
-           
-            letterSpacing: '-2px', // Reduce el espacio entre las estrellas
-            fontWeight: 'bold'      // Hace que las estrellas sean más gruesas
-        }}>
-            {estrellasCompletas}
-        </span>
-    );
-};
+import ReseniaFormulario from './ReseniaFormulario';
+import './JuegoDetalle.css';
 
 const JuegoDetalle = () => {
     const { id } = useParams();
     const [juego, setJuego] = useState(null);
-    const [resenias, setResenias] = useState([]);
+    const [reseñas, setReseñas] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [reseniaEditar, setReseniaEditar] = useState(null); // 🆕 reseña en edición
 
-    const obtenerDatos = async () => {
+    // Obtener detalles del juego
+    const obtenerJuego = async () => {
         try {
-            // 1. Obtener el juego (GET /api/juegos/:id)
-            const juegoRes = await axiosClient.get(`/juegos/${id}`);
-            setJuego(juegoRes.data);
-
-            // 2. Obtener las reseñas (GET /api/resenias?juegoId=...)
-            const reseniasRes = await axiosClient.get(`/resenias?juegoId=${id}`);
-            setResenias(reseniasRes.data);
-
-            setLoading(false);
+            const response = await axiosClient.get(`/juegos/${id}`);
+            setJuego(response.data);
         } catch (error) {
-            console.error('Error al cargar detalles:', error);
+            console.error('Error al obtener el juego:', error);
+        }
+    };
+
+    // Obtener reseñas
+    const obtenerReseñas = async () => {
+        try {
+            const response = await axiosClient.get(`/resenias/juego/${id}`);
+            setReseñas(response.data);
+        } catch (error) {
+            console.error('Error al obtener reseñas:', error);
+            setReseñas([]);
+        } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        obtenerDatos();
+        obtenerJuego();
+        obtenerReseñas();
     }, [id]);
-    
-    // Función para actualizar las reseñas después de crear una nueva
-    const handleReseniaCreada = () => {
-        obtenerDatos(); // Recarga los datos para incluir la nueva reseña
+
+    // Eliminar reseña
+    const handleEliminar = async (reseniaId) => {
+        if (!window.confirm('¿Seguro quieres eliminar esta reseña?')) return;
+
+        try {
+            await axiosClient.delete(`/resenias/${reseniaId}`);
+            setReseñas(reseñas.filter(r => r._id !== reseniaId));
+        } catch (error) {
+            console.error('Error al eliminar reseña:', error);
+        }
     };
 
-    if (loading) return <h2>Cargando detalles del juego...</h2>;
-    if (!juego) return <h2>Juego no encontrado.</h2>;
+    // Editar reseña
+    const handleEditar = (resenia) => {
+        setReseniaEditar({
+            ...resenia,
+            titulo: resenia.tituloResenia,
+            contenido: resenia.textoResenia,
+            recomienda: resenia.recomendaria
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
+    // Callback después de crear o actualizar reseña
+    const handleReseniaCreada = () => {
+        setReseniaEditar(null);
+        obtenerReseñas();
+    };
 
+    if (loading) return <p className="loading-message">Cargando detalles...</p>;
+    if (!juego) return <p className="error-message">Juego no encontrado.</p>;
 
     return (
-        <div style={{ padding: '20px' }}>
-            <h1 style={{ marginBottom: '10px' }}>{juego.nombre}</h1>
-            <img src={juego.imagenPortada} alt={`Portada de ${juego.nombre}`} style={{ maxWidth: '300px', height: 'auto', marginBottom: '20px' }} />
-            <p><strong>Desarrollador:</strong> {juego.desarrollador}</p>
-            <p><strong>Descripción:</strong> {juego.descripcion}</p>
-            <p><strong>Plataforma:</strong> {juego.plataforma}</p>
-            <p><strong>Género:</strong> {juego.genero}</p>
-           
+        <div className="detalle-container">
+            {/* INFO DEL JUEGO */}
+            <header className="game-info-header">
+                {juego.imagenPortada && (
+                    <img src={juego.imagenPortada} alt={`Portada de ${juego.nombre}`} className="game-cover" />
+                )}
+                <div className="game-details">
+                    <h1>{juego.nombre}</h1>
+                    <p><strong>Desarrollador:</strong> {juego.desarrollador || 'N/A'}</p>
+                    <p><strong>Plataforma:</strong> {juego.plataforma}</p>
+                    <p><strong>Género:</strong> {juego.genero}</p>
+                    <p><strong>Año de Lanzamiento:</strong> {juego.añoLanzamiento}</p>
+                </div>
+            </header>
 
-            <hr style={{ margin: '30px 0' }} />
+            <section className="game-description-section">
+                <h3>Descripción</h3>
+                <p>{juego.descripcion}</p>
+            </section>
 
-            <h2>Escribe una Reseña</h2>
-            {/* 2. FORMULARIO DE CREACIÓN */}
-            <ReseniaFormulario juegoId={juego._id} onReseniaCreada={handleReseniaCreada} />
-            
-            <hr style={{ margin: '30px 0' }} />
+            <hr />
 
-            <h2>📝 Reseñas ({resenias.length})</h2>
-            {/* 3. LISTA DE RESEÑAS */}
-            {resenias.length === 0 ? (
-                <p>¡Crea tu reseña!</p>
-            ) : (
-                resenias.map(resenia => (
-                    <div key={resenia._id} style={{ border: '1px solid #ddd', padding: '15px', margin: '10px 0', borderRadius: '5px' }}>
-                        <h4>{resenia.titulo} - Puntuación: {renderEstrellas(resenia.puntuacion)}
-</h4>
-                        <p>{resenia.textoResenia}</p>
-                        <p><small>Estado: {resenia.estado}Por: {resenia.autor} | Horas jugadas: {resenia.horasJugadas}</small></p>
-                        <h4>{resenia.titulo} - Puntuación: {resenia.puntuacion}/5</h4>
-                      
+            {/* FORMULARIO */}
+            <section className="resenia-form-section">
+                <h3>{reseniaEditar ? '✏️ Editar Reseña' : '✍️ Escribe una Reseña'}</h3>
+                <ReseniaFormulario
+                    juegoId={id}
+                    onReseniaCreada={handleReseniaCreada}
+                    reseñaEditar={reseniaEditar} // 🆕 pasar reseña a editar
+                />
+            </section>
+
+            <hr />
+
+            {/* LISTA DE RESEÑAS */}
+            <section className="resenia-list-section">
+                <h3>⭐ Reseñas ({reseñas.length})</h3>
+                {reseñas.length === 0 ? (
+                    <p>Aún no hay reseñas para este juego. ¡Sé el primero!</p>
+                ) : (
+                    <div className="resenias-grid">
+                        {reseñas.map(resenia => (
+                            <div key={resenia._id} className="resenia-card">
+                                <h4>{resenia.tituloResenia || 'Sin Título'}</h4>
+                                <p><strong>Autor:</strong> {resenia.autor}</p>
+                                <p><strong>⭐:</strong> {resenia.puntuacion}/5</p>
+                                <p><strong>Horas Jugadas:</strong> {resenia.horasJugadas}</p>
+                                <p><strong>Estado:</strong> {resenia.estado}</p>
+                                <p>{resenia.textoResenia}</p>
+                                <div className="resenia-buttons">
+                                    <button onClick={() => handleEditar(resenia)} className="btn-edit">Editar</button>
+                                    <button onClick={() => handleEliminar(resenia._id)} className="btn-delete">Eliminar</button>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-
-                ))
-            )}
+                )}
+            </section>
         </div>
     );
 };
